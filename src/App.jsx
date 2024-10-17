@@ -12,8 +12,12 @@ const App = () => {
       name: newName
     }
 
-    setPersons(persons.concat(personObject))
-    setNewName('')
+    if (persons.some(person => person.name === newName)) {
+      alert(`${newName} ya existe en la agenda`)
+    } else {
+      setPersons(persons.concat(personObject))
+      setNewName('')
+    }
   }
 
   const handlePerson = (e) => {
