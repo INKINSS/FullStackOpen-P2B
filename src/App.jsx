@@ -7,7 +7,7 @@ import Persons from "./components/Persons";
 const App = () => {
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/persons").then((response) => {
+    axios.get("https://node-express-6vxo.onrender.com/api/persons").then((response) => {
       const dataPersons = response.data;
       setPersons(dataPersons);
       setOriginalPersons(dataPersons)
