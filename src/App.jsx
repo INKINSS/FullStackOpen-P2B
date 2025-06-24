@@ -18,24 +18,28 @@ const App = () => {
 
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(null);
   const [newNumber, setNewNumber] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [originalPersons, setOriginalPersons] = useState(persons);
 
-  const addPerson = async(e) => {
+  const addPerson = async (e) => {
     try {
       e.preventDefault();
-      const response = await axios.post("https://node-express-6vxo.onrender.com/api/persons", {
-        id: persons.length + 1,
-        name: newName,
-        number: newNumber,
-      });
+      const response = await axios.post(
+        "https://node-express-6vxo.onrender.com/api/persons",
+        {
+          id: persons.length + 1,
+          name: newName,
+          number: newNumber,
+        }
+      );
       setPersons(persons.concat(response.data));
       setNewName("");
       setNewNumber("");
     } catch (error) {
-      setError(error.response.data.error)
+      setError(error.response.data.message);
+      console.log(error);
     }
   };
 
@@ -63,8 +67,8 @@ const App = () => {
         newName={newName}
         newNumber={newNumber}
       />
-      <Persons persons={persons} />
       {error && <p style={{ color: "red" }}>{error}</p>}
+      <Persons persons={persons} />
     </div>
   );
 };
