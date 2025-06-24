@@ -18,6 +18,7 @@ const App = () => {
 
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
+  const [error, setError] = useState(null)
   const [newNumber, setNewNumber] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [originalPersons, setOriginalPersons] = useState(persons);
@@ -34,7 +35,7 @@ const App = () => {
       setNewName("");
       setNewNumber("");
     } catch (error) {
-      console.log(error);
+      setError(error.response.data.error)
     }
   };
 
@@ -63,6 +64,7 @@ const App = () => {
         newNumber={newNumber}
       />
       <Persons persons={persons} />
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 };
