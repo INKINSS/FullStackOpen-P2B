@@ -5,7 +5,7 @@ const Persons = ({ persons }) => {
     <main>
       <h2>Numbers</h2>
       {persons.map((person) => (
-        <p key={person._id}>
+        <p key={person.id}>
           {person.name} {person.number}
         </p>
       ))}
