@@ -6,6 +6,8 @@ import Persons from "./components/Persons";
 import { Login } from "./components/Login";
 import { loginServices } from "./services/login";
 import { setToken } from "./services/login";
+import { LoginButton } from './components/LoginButton'
+import { CreateContactButton } from './components/CreateContactButton'
 
 const App = () => {
 
@@ -18,6 +20,8 @@ const App = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [user, setUser] = useState(null);
+    const [loginVisible, setLoginVisible] = useState(false);
+    const [createContactVisible, setCreateContactVisible] = useState(false);
 
     useEffect(() => {
         const fetchPersons = async () => {
@@ -72,6 +76,7 @@ const App = () => {
       setNewName("");
       setNewNumber("");
       setError(null);
+      setCreateContactVisible(false);
     } catch (error) {
       setError(error.response.data.message);
       console.log(error);
@@ -89,31 +94,54 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      {user ? (
-        <div>
-          <p>Persona logueada: {user.username}</p>
-          <button onClick={() => {
-            window.localStorage.removeItem('user');
-            setUser(null);
-            setToken(null);
-          }}>Logout</button>
-        </div>
-      ) : (
-        <Login username={username} setUsername={setUsername} password={password} setPassword={setPassword} handleLogin={handleLogin}/>
-      )}
+{user ? (
+  <div>
+    <p>Persona logueada: {user.username}</p>
+    <button
+      onClick={() => {
+        window.localStorage.removeItem('user');
+        setUser(null);
+        setToken(null);
+      }}
+    >
+      Logout
+    </button>
+  </div>
+) : (
+  <>
+    {!loginVisible && (
+      <LoginButton onClick={() => setLoginVisible(true)} />
+    )}
+    {loginVisible && (
+      <Login
+        username={username}
+        setUsername={setUsername}
+        password={password}
+        setPassword={setPassword}
+        handleLogin={handleLogin}
+        onCancel={() => setLoginVisible(false)}
+      />
+    )}
+  </>
+)}
+
       <Filter
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         originalPersons={originalPersons}
         setPersons={setPersons}
       />
-      <PersonForm
-        addPerson={addPerson}
-        handleNumber={handleNumber}
-        handlePerson={handlePerson}
-        newName={newName}
-        newNumber={newNumber}
-      />
+      {createContactVisible && (
+        <PersonForm
+          addPerson={addPerson}
+          handleNumber={handleNumber}
+          handlePerson={handlePerson}
+          newName={newName}
+          newNumber={newNumber}
+          onCancel={() => setCreateContactVisible(false)}
+        />
+      )}
+      <CreateContactButton createContactVisible={createContactVisible} onClick={() => setCreateContactVisible(true)} />
       {error && <p style={{ color: "red" }}>{error}</p>}
     {user ? <Persons persons={persons} /> : null}
     </div>
