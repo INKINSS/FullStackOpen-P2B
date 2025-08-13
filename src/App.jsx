@@ -4,6 +4,8 @@ import PersonForm from "./components/PersonForm";
 import axios from "axios";
 import Persons from "./components/Persons";
 import { Login } from "./components/Login";
+import { loginServices } from "./services/login";
+import { setToken } from "./services/login";
 
 const App = () => {
 
@@ -15,6 +17,7 @@ const App = () => {
     const [originalPersons, setOriginalPersons] = useState(persons);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchPersons = async () => {
@@ -24,23 +27,41 @@ const App = () => {
             setOriginalPersons(response.data);
           } catch (err) {
             console.error("Error en fetchPersons:", err);
-          }
+        }
         };
         fetchPersons();
+    }, []);
+
+    useEffect(() => {
+        const loggedUserJSON = window.localStorage.getItem('user');
+        if (loggedUserJSON) {
+          const user = JSON.parse(loggedUserJSON);
+          setUser(user);
+          setToken(user.token);
+        }
       }, []);
 
-      const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        console.log("Login:", username, password);
-      }
-      
+        try {
+            const user = await loginServices({ username, password });
+            window.localStorage.setItem('user', JSON.stringify(user));
+            setUser(user);
+            console.log('este es el token',user.token)
+            setToken(user.token);
+            console.log("Login exitoso:", user);
+        } catch (error) {
+            console.error("Error en login:", error);
+        }
+    }
+
 
 
   const addPerson = async (e) => {
     try {
       e.preventDefault();
       const response = await axios.post(
-        "https://node-express-6vxo.onrender.com/api/persons",
+        "https://fullstackopen-back-ikel.onrender.com/api/contacts",
         {
           id: persons.length + 1,
           name: newName,
@@ -50,6 +71,7 @@ const App = () => {
       setPersons(persons.concat(response.data));
       setNewName("");
       setNewNumber("");
+      setError(null);
     } catch (error) {
       setError(error.response.data.message);
       console.log(error);
@@ -67,7 +89,18 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Login username={username} setUsername={setUsername} password={password} setPassword={setPassword} handleLogin={handleLogin}/>
+      {user ? (
+        <div>
+          <p>Persona logueada: {user.username}</p>
+          <button onClick={() => {
+            window.localStorage.removeItem('user');
+            setUser(null);
+            setToken(null);
+          }}>Logout</button>
+        </div>
+      ) : (
+        <Login username={username} setUsername={setUsername} password={password} setPassword={setPassword} handleLogin={handleLogin}/>
+      )}
       <Filter
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -82,7 +115,7 @@ const App = () => {
         newNumber={newNumber}
       />
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <Persons persons={persons} />
+    {user ? <Persons persons={persons} /> : null}
     </div>
   );
 };
